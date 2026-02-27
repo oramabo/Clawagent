@@ -15,6 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 JIRA="${SCRIPT_DIR}/jira.sh"
 CLAUDE_TERM="${SCRIPT_DIR}/claude_terminal.sh"
 NOTIFY="${SCRIPT_DIR}/notify.sh"
+GITHUB="${SCRIPT_DIR}/github.sh"
 
 # --- Commands ---
 
@@ -23,7 +24,7 @@ cmd_preflight() {
   local all_ok=true
 
   # Check required binaries
-  for bin in curl jq git gh claude tmux; do
+  for bin in curl jq git claude tmux; do
     if command -v "$bin" &>/dev/null; then
       local version
       version=$("$bin" --version 2>/dev/null | head -1 || echo "installed")
@@ -33,6 +34,15 @@ cmd_preflight() {
       all_ok=false
     fi
   done
+
+  # gh is optional (can use GITHUB_TOKEN instead)
+  if command -v gh &>/dev/null; then
+    local version
+    version=$(gh --version 2>/dev/null | head -1 || echo "installed")
+    echo "  ✓ gh: ${version}"
+  else
+    echo "  ⚠ gh: NOT FOUND (optional — GITHUB_TOKEN can be used instead)"
+  fi
 
   echo ""
 
@@ -75,14 +85,9 @@ cmd_preflight() {
 
   echo ""
 
-  # Check GitHub CLI auth
-  echo "--- GitHub CLI ---"
-  if gh auth status &>/dev/null 2>&1; then
-    echo "  ✓ gh authenticated"
-  else
-    echo "  ✗ gh not authenticated (run: gh auth login)"
-    all_ok=false
-  fi
+  # Check GitHub credentials (gh CLI or API token)
+  echo "--- GitHub ---"
+  bash "$GITHUB" healthcheck 2>&1 | sed 's/^/  /' || all_ok=false
 
   echo ""
   echo "=== Preflight $(${all_ok} && echo "PASSED" || echo "FAILED — fix issues above") ==="

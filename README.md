@@ -16,19 +16,20 @@ Clawagent runs a five-phase loop for each Jira task:
 
 ## Prerequisites
 
-| Tool | Install |
-|------|---------|
-| **Claude Code** | `npm install -g @anthropic-ai/claude-code` then `claude login` |
-| **tmux** | `apt install tmux` (Linux) or `brew install tmux` (macOS) |
-| **GitHub CLI** | [cli.github.com](https://cli.github.com) then `gh auth login` |
-| **jq** | `apt install jq` (Linux) or `brew install jq` (macOS) |
-| **curl** | Pre-installed on most systems |
-| **git** | Pre-installed on most systems |
+| Tool | Install | Required? |
+|------|---------|-----------|
+| **Claude Code** | `npm install -g @anthropic-ai/claude-code` then `claude login` | Yes |
+| **tmux** | `apt install tmux` (Linux) or `brew install tmux` (macOS) | Yes |
+| **jq** | `apt install jq` (Linux) or `brew install jq` (macOS) | Yes |
+| **curl** | Pre-installed on most systems | Yes |
+| **git** | Pre-installed on most systems | Yes |
+| **GitHub CLI** | [cli.github.com](https://cli.github.com) then `gh auth login` | Optional |
 
 You also need:
 
 - A **Jira Cloud** account with an API token ([generate one here](https://id.atlassian.com/manage-profile/security/api-tokens))
 - A **GitHub** repository with write access
+- **One of**: `gh` CLI (authenticated) **or** a `GITHUB_TOKEN` personal access token ([create one here](https://github.com/settings/tokens))
 
 ## Installation
 
@@ -52,7 +53,7 @@ Paste `https://github.com/oramabo/Clawagent` into your OpenClaw chat and say "in
 
 ## Configuration
 
-Add your Jira credentials to `~/.openclaw/openclaw.json`:
+Add your credentials to `~/.openclaw/openclaw.json`:
 
 ```json
 {
@@ -64,7 +65,8 @@ Add your Jira credentials to `~/.openclaw/openclaw.json`:
           "JIRA_BASE_URL": "https://yoursite.atlassian.net",
           "JIRA_EMAIL": "you@example.com",
           "JIRA_API_TOKEN": "your-jira-api-token",
-          "JIRA_PROJECT_KEY": "PROJ"
+          "JIRA_PROJECT_KEY": "PROJ",
+          "GITHUB_TOKEN": "ghp_your-github-token"
         }
       }
     }
@@ -72,12 +74,24 @@ Add your Jira credentials to `~/.openclaw/openclaw.json`:
 }
 ```
 
+### Jira variables (required)
+
 | Variable | Description |
 |----------|-------------|
 | `JIRA_BASE_URL` | Your Jira Cloud instance URL (e.g. `https://yoursite.atlassian.net`) |
 | `JIRA_EMAIL` | Email address associated with your Jira account |
 | `JIRA_API_TOKEN` | API token from [Atlassian account settings](https://id.atlassian.com/manage-profile/security/api-tokens) |
 | `JIRA_PROJECT_KEY` | Default project key (e.g. `PROJ`) |
+
+### GitHub variables (choose one)
+
+You need **either** the `gh` CLI authenticated **or** a `GITHUB_TOKEN`. You don't need both.
+
+| Variable | Description |
+|----------|-------------|
+| `GITHUB_TOKEN` | Personal access token with `repo` scope ([create one](https://github.com/settings/tokens)) — only needed if `gh` CLI is not installed |
+| `GITHUB_OWNER` | Repository owner (auto-detected from git remote if unset) |
+| `GITHUB_REPO` | Repository name (auto-detected from git remote if unset) |
 
 ## Verify Installation
 
@@ -87,7 +101,7 @@ Run the preflight check to confirm everything is set up correctly:
 bash ~/.openclaw/workspace/skills/auto-dev/scripts/workflow.sh preflight
 ```
 
-This validates that all required tools are installed, Jira credentials work, you're inside a git repo, and GitHub CLI is authenticated.
+This validates that all required tools are installed, Jira credentials work, you're inside a git repo, and GitHub credentials are configured (either `gh` or `GITHUB_TOKEN`).
 
 ## Usage
 
@@ -115,6 +129,7 @@ skills/auto-dev/
 ├── scripts/
 │   ├── workflow.sh                 # Orchestration and preflight checks
 │   ├── jira.sh                    # Jira Cloud REST API wrapper
+│   ├── github.sh                  # GitHub wrapper (gh CLI or API token)
 │   ├── notify.sh                  # Progress notification formatter
 │   └── claude_terminal.sh         # Claude Code tmux session controller
 ├── assets/prompts/

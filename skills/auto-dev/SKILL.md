@@ -21,15 +21,17 @@ metadata:
         - curl
         - jq
         - git
-        - gh
         - claude
         - tmux
+      anyBins:
+        - gh
     primaryEnv: JIRA_API_TOKEN
     emoji: "\U0001F916"
     install: |
       which tmux || echo "Install tmux: apt install tmux / brew install tmux"
       which claude || echo "Install Claude Code: npm install -g @anthropic-ai/claude-code"
-      which gh || echo "Install GitHub CLI: https://cli.github.com"
+      which gh || echo "(Optional) Install GitHub CLI: https://cli.github.com"
+      test -n "${GITHUB_TOKEN:-}" || echo "Set GITHUB_TOKEN if gh CLI is not installed"
 ---
 
 # Auto-Dev: Autonomous Developer Agent
@@ -244,10 +246,13 @@ git push -u origin feat/<KEY>-<slugified-summary>
 
 ### 4.3 Create Pull Request
 
+Uses `gh` CLI if available, otherwise falls back to the GitHub REST API via
+`GITHUB_TOKEN`. No configuration change needed — the script auto-detects.
+
 ```bash
-gh pr create \
-  --title "feat(<KEY>): <summary>" \
-  --body "## Jira Task
+PR_URL=$(bash {baseDir}/scripts/github.sh create-pr \
+  "feat(<KEY>): <summary>" \
+  "## Jira Task
 <JIRA_BASE_URL>/browse/<KEY>
 
 ## Summary
@@ -258,10 +263,12 @@ gh pr create \
 
 ## Testing
 - Unit tests: passing
-- Browser QA: passing"
+- Browser QA: passing" \
+  "feat/<KEY>-<slugified-summary>" \
+  "main")
 ```
 
-Capture the PR URL from the output.
+`PR_URL` contains the pull request URL.
 
 ### 4.4 Update Jira
 
