@@ -1,0 +1,12 @@
+The tests are failing after your implementation. Here's the test output:
+
+{TEST_OUTPUT}
+
+Please:
+1. Read the error messages carefully
+2. Identify the root cause of each failure
+3. Fix the code (not the tests, unless the tests themselves are wrong)
+4. Run the test suite again to verify your fixes
+
+If a test is testing the old behavior that your changes intentionally modified,
+update the test to match the new expected behavior and explain why.

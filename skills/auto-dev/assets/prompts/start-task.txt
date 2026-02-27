@@ -1,0 +1,24 @@
+I need you to implement Jira task {TASK_KEY}: {TASK_SUMMARY}
+
+Here are the full requirements:
+
+{TASK_DESCRIPTION}
+
+Acceptance criteria:
+{ACCEPTANCE_CRITERIA}
+
+Please follow these steps:
+
+1. Read the existing codebase to understand the project structure, conventions, and patterns
+2. Plan your implementation approach before writing any code
+3. Implement the feature/fix following existing code conventions
+4. Write tests for all your changes (unit tests at minimum, integration tests if applicable)
+5. Run the full test suite to verify nothing is broken
+6. If tests fail, fix the issues and re-run
+
+Important:
+- Follow the project's existing code style and patterns
+- Do not modify unrelated files
+- Do not add unnecessary dependencies
+- Make your changes as minimal and focused as possible
+- Commit nothing — leave changes unstaged for review

@@ -1,0 +1,12 @@
+Please review all the changes you've made on this branch before we push.
+
+Run `git diff main` (or `git diff master`) to see all changes, then check:
+
+1. **Correctness**: Are there any logic errors, off-by-one bugs, or edge cases not handled?
+2. **Security**: Any hardcoded secrets, injection vulnerabilities, or unsafe operations?
+3. **Error handling**: Are errors handled gracefully? Are there unhandled promise rejections or uncaught exceptions?
+4. **Test coverage**: Do all new code paths have corresponding tests?
+5. **Code style**: Does the code follow the project's existing conventions?
+6. **Clean up**: Any debug logs, commented-out code, or TODO comments that should be removed?
+
+If you find issues, fix them now. Then run the test suite one final time to confirm everything passes.
