@@ -52,6 +52,32 @@ bash {baseDir}/scripts/workflow.sh preflight
 
 If any check fails, tell the user what's missing and stop.
 
+## Background Monitoring (Cron Daemon)
+
+After preflight passes, start the cron daemon. This runs in the background and:
+- **Auto-approves** Claude's permission prompts so sessions never block (notifies user)
+- **Monitors progress** and nudges Claude if stalled
+- **Syncs Jira** for new tasks, status/priority changes, and new comments
+- **Sends heartbeats** so the user always knows what's happening
+
+```bash
+bash {baseDir}/scripts/cron.sh start
+```
+
+For persistent Jira polling (even when no sessions are active):
+
+```bash
+bash {baseDir}/scripts/cron.sh install-crontab
+```
+
+Configuration: `{baseDir}/config/cron.conf`
+
+At the end of a work session (after Phase 5 completes or all tasks are done):
+
+```bash
+bash {baseDir}/scripts/cron.sh stop
+```
+
 ---
 
 ## Phase 1: Task Discovery
@@ -331,3 +357,6 @@ If any step fails:
 - `/auto-dev` — List assigned tasks and start working through them
 - `/auto-dev PROJ-123` — Work on a specific ticket
 - `/auto-dev --status` — Show active auto-dev sessions
+- `/auto-dev --cron start` — Start background cron daemon
+- `/auto-dev --cron stop` — Stop background cron daemon
+- `/auto-dev --cron status` — Show cron daemon status and last job runs

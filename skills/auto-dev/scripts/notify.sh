@@ -98,6 +98,50 @@ cmd_summary() {
 EOF
 }
 
+# --- Cron daemon notifications ---
+
+cmd_stall() {
+  local key="$1"
+  shift
+  local message="$*"
+  echo "⏸️ **Stall Detected** [${key}]: ${message}"
+}
+
+cmd_jira_update() {
+  local key="$1"
+  shift
+  local message="$*"
+  echo "🔄 **Jira Update** [${key}]: ${message}"
+}
+
+cmd_jira_new() {
+  local key="$1"
+  shift
+  local summary="$*"
+  cat <<EOF
+📋 **New Task Assigned**: ${key} — ${summary}
+
+A new task has been assigned. It will be picked up in the next work cycle.
+EOF
+}
+
+cmd_heartbeat() {
+  shift 2>/dev/null || true
+  local message="$*"
+  cat <<EOF
+💓 **Status Heartbeat**
+
+${message}
+EOF
+}
+
+cmd_intervention() {
+  local key="$1"
+  shift
+  local message="$*"
+  echo "🤖 **Auto-Intervention** [${key}]: ${message}"
+}
+
 # --- Router ---
 
 case "${1:-help}" in
@@ -109,6 +153,11 @@ case "${1:-help}" in
   done)        cmd_done ;;
   qa-fail)     shift; cmd_qa_fail "$@" ;;
   summary)     cmd_summary "${2:-0}" "${3:-0}" "${4:-0}" ;;
+  stall)        shift; cmd_stall "$@" ;;
+  jira-update)  shift; cmd_jira_update "$@" ;;
+  jira-new)     shift; cmd_jira_new "$@" ;;
+  heartbeat)    cmd_heartbeat "$@" ;;
+  intervention) shift; cmd_intervention "$@" ;;
   help|*)
     cat <<'USAGE'
 Usage: notify.sh <command> [args]
@@ -122,12 +171,18 @@ Commands:
   done                            All tasks complete
   qa-fail <KEY> <message>         QA found an issue
   summary <done> <failed> <prs>   Session summary
+  stall <KEY> <message>           Stall detected by cron monitor
+  jira-update <KEY> <message>     Jira change detected by cron sync
+  jira-new <KEY> <summary>        New task assigned (from cron sync)
+  heartbeat <message>             Periodic status heartbeat
+  intervention <KEY> <message>    Auto-intervention taken by cron
 
 Examples:
   notify.sh starting PROJ-123 "Add user authentication"
   notify.sh progress PROJ-123 "Initial implementation complete, running tests"
   notify.sh pr-created PROJ-123 "https://github.com/org/repo/pull/42"
   notify.sh error PROJ-123 "Tests failing after 3 fix attempts"
+  notify.sh intervention PROJ-123 "Auto-approved a permission prompt"
 USAGE
     ;;
 esac
