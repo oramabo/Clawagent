@@ -1,0 +1,3 @@
+# Cron daemon runtime state (PID files, snapshots, hashes)
+skills/auto-dev/state/*
+!skills/auto-dev/state/.gitkeep

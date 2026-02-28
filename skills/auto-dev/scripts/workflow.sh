@@ -197,6 +197,12 @@ cmd_cleanup() {
   echo "OK: Branch '${branch_name}' deleted"
 }
 
+cmd_cron() {
+  local action="${1:-status}"
+  shift 2>/dev/null || true
+  bash "${SCRIPT_DIR}/cron.sh" "$action" "$@"
+}
+
 # --- Router ---
 
 case "${1:-help}" in
@@ -205,6 +211,7 @@ case "${1:-help}" in
   list-tasks)   cmd_list_tasks ;;
   setup-branch) cmd_setup_branch "$2" "${3:-main}" ;;
   cleanup)      cmd_cleanup "$2" ;;
+  cron)         shift; cmd_cron "$@" ;;
   help|*)
     cat <<'USAGE'
 Usage: workflow.sh <command> [args]
@@ -215,12 +222,16 @@ Commands:
   list-tasks                  Formatted table of assigned Jira tasks
   setup-branch <KEY> [base]   Create feat/<KEY> branch from base (default: main)
   cleanup <KEY>               Delete feat/<KEY> branch after merge
+  cron <action> [args]        Manage cron daemon (start|stop|status|run-once|...)
 
 Examples:
   workflow.sh preflight
   workflow.sh list-tasks
   workflow.sh setup-branch PROJ-123
   workflow.sh cleanup PROJ-123
+  workflow.sh cron start
+  workflow.sh cron status
+  workflow.sh cron run-once autonomy
 USAGE
     ;;
 esac
